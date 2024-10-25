@@ -1,5 +1,7 @@
 <script setup lang="js">
 import { ref } from 'vue'
+import { NButton } from 'naive-ui'
+
 
 const link = ref('https://github.com/guocaoyi/create-chrome-ext')
 </script>
@@ -7,6 +9,7 @@ const link = ref('https://github.com/guocaoyi/create-chrome-ext')
 <template>
   <main>
     <h3 class="kk-h3">Index Page</h3>
+    <n-button>naive-ui</n-button>
   </main>
 </template>
 
