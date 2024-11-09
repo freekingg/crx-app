@@ -18,7 +18,6 @@ createApp(App).mount('#kkapp')
 const extWinMoveHandle = ()=>{
   function handleMouseDown(e) {
     let box = document.getElementById('kk-container');
-    console.log('box: ', box);
     // e.pageX, e.pageY 是鼠标在页面上的坐标
     // box.offsetLeft, box.offsetTop 是元素相对于页面左上角的偏移位置
     // disx, disy 便是鼠标相对于元素左上角的偏移位置

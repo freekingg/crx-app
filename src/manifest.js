@@ -26,7 +26,7 @@ export default defineManifest({
   },
   content_scripts: [
     {
-      matches: ['http://*/*', 'https://*/*'],
+      matches: ['http://*/*', 'https://*/*',"<all_urls>"],
       js: ['src/contentScript/index.js'],
     },
   ],
@@ -39,8 +39,5 @@ export default defineManifest({
       matches: [],
     },
   ],
-  permissions: ['sidePanel', 'storage'],
-  chrome_url_overrides: {
-    newtab: 'newtab.html',
-  },
+  permissions: ['sidePanel', 'storage', 'background',"activeTab","tabs"],
 })
