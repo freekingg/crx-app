@@ -8,7 +8,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 
   if (request.action === 'GETACCOUNT') {
-    fetch('http://192.168.1.154:8082/bool-admin/weixin/publicaccount/list_account')
+    fetch('http://47.96.231.20/bool-admin/weixin/publicaccount/list_account')
       .then((response) => response.json())
       .then((data) => {
         sendResponse(data)
@@ -19,7 +19,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 
   if (request.action === 'GETAICOMMAND') {
-    fetch('http://192.168.1.154:8082/bool-admin/weixin/wxtemplate/list_template?type=1')
+    fetch('http://47.96.231.20/bool-admin/weixin/wxtemplate/list_template?type=1')
       .then((response) => response.json())
       .then((data) => {
         sendResponse(data)
@@ -29,7 +29,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 
   if (request.action === 'GENARTICLE') {
-    fetch('http://192.168.1.154:8082/bool-admin/weixin/publicarticles/gen_article', {
+    fetch('http://47.96.231.20/bool-admin/weixin/publicarticles/gen_article', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

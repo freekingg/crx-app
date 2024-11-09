@@ -18,11 +18,17 @@ const page = reactive({
 <style>
 #kk-container {
   position: fixed;
-  z-index: 1;
+  z-index: 9999;
   background-color: aliceblue;
   right: 0;
   top: 0;
-  width: 300px;
+  min-width: 200px;
   padding: 10px 25px;
+}
+.v-binder-follower-container{
+  z-index: 99999 !important;
+}
+.index .n-form-item-feedback-wrapper{
+  min-height:10px;
 }
 </style>
