@@ -114,6 +114,18 @@ const contentHandle = () => {
   } else if (webType.value === 'weixin') {
     titleDom = document.querySelector('#activity-name')
     imgsDom = document.querySelectorAll('#js_content img')
+  } else if (webType.value === '163') {
+    titleDom = document.querySelector('h1.post_title')
+    imgsDom = document.querySelectorAll('.post_body img')
+  } else if (webType.value === 'toutiao') {
+    titleDom = document.querySelector('.article-content h1')
+    imgsDom = document.querySelectorAll('.tt-article-content img')
+  } else if (webType.value === 'qq') {
+    titleDom = document.querySelector('.content-article h1')
+    imgsDom = document.querySelectorAll('.rich_media_content img')
+  } else if (webType.value === 'zhihu') {
+    titleDom = document.querySelector('h1.Post-Title')
+    imgsDom = document.querySelectorAll('.RichText img')
   }
 
   if (target.title.indexOf('分析网址') !== -1) {
