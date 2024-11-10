@@ -14,7 +14,7 @@ import {
   NAlert,
 } from 'naive-ui'
 import { setItem, getItem } from '../utils'
-import {allowHost} from '../data'
+import { allowHost } from '../data'
 
 const message = useMessage()
 const rules = reactive({
@@ -92,31 +92,36 @@ const getStyleCommand = () => {
 }
 
 const contentHandle = () => {
+  const aiType = ''
+
+  let target = aiCommands.value.find((item) => item.id === formValue.queryTempId)
+  if (!target) {
+    return message.error('AI指定未选择')
+  }
+
+  if (target.title.indexOf('分析网址') !== -1) {
+    aiType = 'fenxiwangzhi'
+  }
+
+  let titleDom = ''
+  let imgsDom = ''
   if (webType.value === 'sohu') {
-    let title = document.querySelector('#article-container .main .text-title h1')
-    formValue.query = title.innerText
-
-    let imgs = document.querySelectorAll('#article-container .main .text .ql-align-center img')
-    if (imgs.length) {
-      formValue.imgList = Array.from(imgs).map((item) => item.src)
-      console.log('formValue.imgList: ', formValue.imgList)
-    }
+    titleDom = document.querySelector('#article-container .main .text-title h1')
+    imgsDom = document.querySelectorAll('#article-container .main .text .ql-align-center img')
   } else if (webType.value === 'baijiahao' || webType.value === 'mbd') {
-    let title = document.querySelector('#header > div')
-    formValue.query = title.innerText
-
-    let imgs = document.querySelectorAll('div[data-testid="article"] img')
-    if (imgs.length) {
-      formValue.imgList = Array.from(imgs).map((item) => item.src)
-    }
+    titleDom = document.querySelector('#header > div')
+    imgsDom = document.querySelectorAll('div[data-testid="article"] img')
   } else if (webType.value === 'weixin') {
-    let title = document.querySelector('#activity-name')
-    formValue.query = title.innerText
+    titleDom = document.querySelector('#activity-name')
+    imgsDom = document.querySelectorAll('#js_content img')
+  }
 
-    let imgs = document.querySelectorAll('#js_content img')
-    if (imgs.length) {
-      formValue.imgList = Array.from(imgs).map((item) => item.src)
-    }
+  if (target.title.indexOf('分析网址') !== -1) {
+  } else {
+    formValue.query = titleDom.innerText
+  }
+  if (imgsDom.length) {
+    formValue.imgList = Array.from(imgsDom).map((item) => item.src)
   }
 
   if (!formValue.query) {
@@ -267,7 +272,7 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.kk-index{
+.kk-index {
   padding: 10px 25px;
 }
 .kk-h3 {
@@ -280,5 +285,4 @@ onMounted(() => {
   user-select: none;
   border-bottom: 1px solid lightblue;
 }
-
 </style>
