@@ -56,9 +56,9 @@ const extWinMoveHandle = ()=>{
   function handleMouseUp() {
     document.onmousemove = document.onmouseup = null;
   }
-  let box = document.getElementById('kk-container');
-  box.addEventListener('mousedown',handleMouseDown)
-  box.addEventListener('mouseup',handleMouseUp)
+  let move = document.getElementById('zhedie');
+  move.addEventListener('mousedown',handleMouseDown)
+  move.addEventListener('mouseup',handleMouseUp)
 }
 
 extWinMoveHandle()

@@ -8,11 +8,13 @@ import {
   NRadio,
   NRadioGroup,
   NFormItem,
+  NIcon,
   useMessage,
   NPopconfirm,
   NAlert,
 } from 'naive-ui'
 import { setItem, getItem } from '../utils'
+import {allowHost} from '../data'
 
 const message = useMessage()
 const rules = reactive({
@@ -95,7 +97,6 @@ const contentHandle = () => {
     formValue.query = title.innerText
 
     let imgs = document.querySelectorAll('#article-container .main .text .ql-align-center img')
-    console.log('imgs: ', imgs)
     if (imgs.length) {
       formValue.imgList = Array.from(imgs).map((item) => item.src)
       console.log('formValue.imgList: ', formValue.imgList)
@@ -108,7 +109,16 @@ const contentHandle = () => {
     if (imgs.length) {
       formValue.imgList = Array.from(imgs).map((item) => item.src)
     }
+  } else if (webType.value === 'weixin') {
+    let title = document.querySelector('#activity-name')
+    formValue.query = title.innerText
+
+    let imgs = document.querySelectorAll('#js_content img')
+    if (imgs.length) {
+      formValue.imgList = Array.from(imgs).map((item) => item.src)
+    }
   }
+
   if (!formValue.query) {
     return message.error('内容不可为空')
   } else if (!formValue.imgList) {
@@ -169,11 +179,6 @@ const handleValidateSubmit = (e) => {
 
 const matchHost = () => {
   let href = location.href
-  let allowHost = [
-    { host: 'sohu.com/a', type: 'sohu' },
-    { host: 'https://baijiahao.baidu.com/', type: 'baijiahao' },
-    { host: 'https://mbd.baidu.com/', type: 'mbd' },
-  ]
   let matchedElement = allowHost.find((item) => href.includes(item.host))
   if (matchedElement) {
     webType.value = matchedElement.type
@@ -192,7 +197,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="index">
+  <main class="kk-index">
     <h3 class="kk-h3">文章采集..</h3>
     <n-form
       ref="formRef"
@@ -201,6 +206,7 @@ onMounted(() => {
       :rules="rules"
       label-width="70"
       label-placement="left"
+      style="display: block !important"
     >
       <n-form-item label="账号" path="accountId">
         <n-select
@@ -238,7 +244,7 @@ onMounted(() => {
         </n-radio-group>
       </n-form-item>
       <n-alert type="info" :bordered="false"> 图片：{{ formValue.imgList.length }} 张 </n-alert>
-
+      <p style="font-size: 14px; margin: 4px 0; color: #b0781a">采集前，需要浏览完当前网页</p>
       <n-form-item>
         <n-popconfirm @positive-click="handlePositiveClick">
           <template #trigger>
@@ -253,7 +259,7 @@ onMounted(() => {
               采集
             </n-button>
           </template>
-          确认是否执行。
+          确认是否执行?。
         </n-popconfirm>
       </n-form-item>
     </n-form>
@@ -261,11 +267,18 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.kk-index{
+  padding: 10px 25px;
+}
 .kk-h3 {
   color: #42b983;
   text-transform: uppercase;
   text-align: center;
   font-weight: bold;
   margin-bottom: 7px;
+  font-size: 16px;
+  user-select: none;
+  border-bottom: 1px solid lightblue;
 }
+
 </style>
