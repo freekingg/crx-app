@@ -6,6 +6,7 @@ import {
   NInput,
   NSelect,
   NRadio,
+  NRadioGroup,
   NFormItem,
   useMessage,
   NPopconfirm,
@@ -33,11 +34,13 @@ const formRef = ref(null)
 const formValue = reactive({
   accountId: '',
   query: '',
-  type: 1,
+  queryTempId: '',
+  articleTempId: '',
   imgList: [],
 })
 const accounts = ref([])
 const aiCommands = ref([])
+const styleCommands = ref([])
 const loading = ref(false)
 const disabled = ref(false)
 const webType = ref()
@@ -54,9 +57,14 @@ const getAccounts = () => {
           formValue.accountId = value
         }
       })
-      getItem('aiCommand').then((value) => {
+      getItem('queryTempId').then((value) => {
         if (value) {
-          formValue.type = value
+          formValue.queryTempId = value
+        }
+      })
+      getItem('articleTempId').then((value) => {
+        if (value) {
+          formValue.articleTempId = value
         }
       })
     }
@@ -72,14 +80,25 @@ const getAiCommand = () => {
   })
 }
 
+const getStyleCommand = () => {
+  chrome.runtime.sendMessage({ action: 'GETSTYLECOMMAND' }, function (response) {
+    console.log('样式列表:', response)
+    if (response.data) {
+      styleCommands.value = response.data
+    }
+  })
+}
+
 const contentHandle = () => {
   if (webType.value === 'sohu') {
     let title = document.querySelector('#article-container .main .text-title h1')
     formValue.query = title.innerText
 
     let imgs = document.querySelectorAll('#article-container .main .text .ql-align-center img')
+    console.log('imgs: ', imgs)
     if (imgs.length) {
       formValue.imgList = Array.from(imgs).map((item) => item.src)
+      console.log('formValue.imgList: ', formValue.imgList)
     }
   } else if (webType.value === 'baijiahao' || webType.value === 'mbd') {
     let title = document.querySelector('#header > div')
@@ -96,16 +115,19 @@ const contentHandle = () => {
     return message.error('图片不可为空')
   } else {
     loading.value = true
-    messageReactive = message.loading('提交中', { duration: 5000 })
+    messageReactive = message.loading('提交中', { duration: 0 })
     chrome.runtime.sendMessage({ action: 'GENARTICLE', data: formValue }, function (response) {
       console.log('提交文章结果:', response)
-      // message.success('验证成功')
-      formValue.query = ''
-      formValue.imgList = []
-      if (messageReactive) {
-        messageReactive.destroy()
-        messageReactive = null
-      }
+      message.success('提交文章成功')
+      setTimeout(() => {
+        formValue.query = ''
+        formValue.imgList = []
+        loading.value = false
+        if (messageReactive) {
+          messageReactive.destroy()
+          messageReactive = null
+        }
+      }, 5000)
     })
   }
 }
@@ -118,8 +140,14 @@ const handleUpdateValue = (value) => {
   })
 }
 
-const handleTypeUpdateValue = (value) => {
-  setItem('aiCommand', value).then(() => {
+const handleTypeUpdateValue = (e) => {
+  setItem('queryTempId', e.target.value).then(() => {
+    console.log('数据存储成功')
+  })
+}
+
+const handleStyleUpdateValue = (value) => {
+  setItem('articleTempId', value).then(() => {
     console.log('数据存储成功')
   })
 }
@@ -158,6 +186,7 @@ const matchHost = () => {
 onMounted(() => {
   getAccounts()
   getAiCommand()
+  getStyleCommand()
   matchHost()
 })
 </script>
@@ -170,12 +199,11 @@ onMounted(() => {
       size="small"
       :model="formValue"
       :rules="rules"
-      label-width="60"
+      label-width="70"
       label-placement="left"
     >
       <n-form-item label="账号" path="accountId">
         <n-select
-          :menu-props="{ style: { zIndex: 9999 } }"
           label-field="name"
           value-field="id"
           v-model:value="formValue.accountId"
@@ -188,16 +216,26 @@ onMounted(() => {
         <n-input v-model:value="formValue.query" placeholder="内容" />
       </n-form-item>
       <n-form-item label="AI指令" path="age">
-        <n-radio
-          :value="item.id"
-          name="basic-demo"
-          v-for="(item, index) in aiCommands"
-          :key="index"
-          v-model:checked="formValue.type"
+        <n-radio-group
+          v-model:value="formValue.queryTempId"
+          name="radiogroup"
           @change="handleTypeUpdateValue"
         >
-          {{ item.title }}</n-radio
+          <n-radio :value="item.id" v-for="(item, index) in aiCommands" :key="item.id">
+            {{ item.title }}</n-radio
+          >
+        </n-radio-group>
+      </n-form-item>
+      <n-form-item label="样式模板" path="articleTempId">
+        <n-radio-group
+          v-model:value="formValue.articleTempId"
+          name="radiogroup"
+          @change="handleStyleUpdateValue"
         >
+          <n-radio :value="item.id" v-for="(item, index) in styleCommands" :key="item.id">
+            {{ item.title }}</n-radio
+          >
+        </n-radio-group>
       </n-form-item>
       <n-alert type="info" :bordered="false"> 图片：{{ formValue.imgList.length }} 张 </n-alert>
 
