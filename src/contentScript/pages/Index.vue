@@ -154,14 +154,14 @@ const contentHandle = () => {
     messageReactive = message.loading('提交中', { duration: 0 })
 
     chrome.runtime.sendMessage({ action: 'GENARTICLE', data: formValue }, function (response) {
-      console.log('提交文章结果:', response)
+      console.log('提交文章结果1:', response)
       if(response.code == 500){
         loading.value = false
         if (messageReactive) {
           messageReactive.destroy()
           messageReactive = null
         }
-        return message.success(response.msg)
+        return message.error(response.msg)
       }
       message.success('提交文章成功')
       setTimeout(() => {
