@@ -74,6 +74,7 @@ const hideHandle = () => {
     <n-message-provider>
       <component :is="page.component"></component>
     </n-message-provider>
+    <div></div>
   </main>
 </template>
 <style>
@@ -116,5 +117,18 @@ const hideHandle = () => {
 }
 .index .n-form-item-feedback-wrapper {
   min-height: 10px;
+}
+.kk-index {
+  padding: 10px 25px;
+}
+.kk-h3 {
+  color: #42b983;
+  text-transform: uppercase;
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 7px;
+  font-size: 16px;
+  user-select: none;
+  border-bottom: 1px solid lightblue;
 }
 </style>

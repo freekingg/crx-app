@@ -10,13 +10,18 @@ import {
   NFormItem,
   NIcon,
   useMessage,
+  createDiscreteApi,
   NPopconfirm,
   NAlert,
 } from 'naive-ui'
+const { message, notification, dialog, loadingBar, modal } = createDiscreteApi(
+  ["message", "dialog", "notification", "loadingBar", "modal"],
+  
+);
 import { setItem, getItem } from '../utils'
 import { allowHost } from '../data'
 
-const message = useMessage()
+// const message = useMessage()
 const rules = reactive({
   accountId: {
     required: true,
@@ -65,6 +70,7 @@ const getAccounts = () => {
         }
       })
       getItem('articleTempId').then((value) => {
+        console.log('value: ', value);
         if (value) {
           formValue.articleTempId = value
         }
@@ -92,7 +98,7 @@ const getStyleCommand = () => {
 }
 
 const contentHandle = () => {
-  const aiType = ''
+  let aiType = ''
 
   let target = aiCommands.value.find((item) => item.id === formValue.queryTempId)
   if (!target) {
@@ -107,7 +113,7 @@ const contentHandle = () => {
   let imgsDom = ''
   if (webType.value === 'sohu') {
     titleDom = document.querySelector('#article-container .main .text-title h1')
-    imgsDom = document.querySelectorAll('#article-container .main .text .ql-align-center img')
+    imgsDom = document.querySelectorAll('#article-container .main .text .article img')
   } else if (webType.value === 'baijiahao' || webType.value === 'mbd') {
     titleDom = document.querySelector('#header > div')
     imgsDom = document.querySelectorAll('div[data-testid="article"] img')
@@ -129,6 +135,7 @@ const contentHandle = () => {
   }
 
   if (target.title.indexOf('分析网址') !== -1) {
+    formValue.query = location.href
   } else {
     formValue.query = titleDom.innerText
   }
@@ -141,8 +148,11 @@ const contentHandle = () => {
   } else if (!formValue.imgList) {
     return message.error('图片不可为空')
   } else {
+
+
     loading.value = true
     messageReactive = message.loading('提交中', { duration: 0 })
+
     chrome.runtime.sendMessage({ action: 'GENARTICLE', data: formValue }, function (response) {
       console.log('提交文章结果:', response)
       message.success('提交文章成功')
@@ -173,8 +183,8 @@ const handleTypeUpdateValue = (e) => {
   })
 }
 
-const handleStyleUpdateValue = (value) => {
-  setItem('articleTempId', value).then(() => {
+const handleStyleUpdateValue = (e) => {
+  setItem('articleTempId', e.target.value).then(() => {
     console.log('数据存储成功')
   })
 }
@@ -283,18 +293,6 @@ onMounted(() => {
   </main>
 </template>
 
-<style scoped>
-.kk-index {
-  padding: 10px 25px;
-}
-.kk-h3 {
-  color: #42b983;
-  text-transform: uppercase;
-  text-align: center;
-  font-weight: bold;
-  margin-bottom: 7px;
-  font-size: 16px;
-  user-select: none;
-  border-bottom: 1px solid lightblue;
-}
+<style>
+
 </style>
