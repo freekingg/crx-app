@@ -155,6 +155,14 @@ const contentHandle = () => {
 
     chrome.runtime.sendMessage({ action: 'GENARTICLE', data: formValue }, function (response) {
       console.log('提交文章结果:', response)
+      if(response.code == 500){
+        loading.value = false
+        if (messageReactive) {
+          messageReactive.destroy()
+          messageReactive = null
+        }
+        return message.success(response.msg)
+      }
       message.success('提交文章成功')
       setTimeout(() => {
         formValue.query = ''
