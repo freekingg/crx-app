@@ -43,6 +43,8 @@ const formValue = reactive({
   query: '',
   queryTempId: '',
   articleTempId: '',
+  origUrl: '',
+  origTitle: '',
   imgList: [],
 })
 const accounts = ref([])
@@ -152,6 +154,10 @@ const contentHandle = () => {
 
     loading.value = true
     messageReactive = message.loading('提交中', { duration: 0 })
+
+    
+    formValue.origUrl = location.href
+    formValue.origTitle = document.title
 
     chrome.runtime.sendMessage({ action: 'GENARTICLE', data: formValue }, function (response) {
       console.log('提交文章结果1:', response)
