@@ -1,5 +1,8 @@
 console.log('background is running')
 
+let baseUrl = 'https://admin.buerluoji.cn'
+let token = ''
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log('request', request)
 
@@ -8,7 +11,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 
   if (request.action === 'GETACCOUNT') {
-    fetch('http://192.168.1.154:8082/bool-admin/wechat/publicaccount/list_account')
+    fetch(`${baseUrl}/bool-admin/wechat/publicaccount/list_account`, {
+      method: 'GET',
+      headers: {
+        token,
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         sendResponse(data)
@@ -20,7 +28,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   // 获取指令模板
   if (request.action === 'GETAICOMMAND') {
-    fetch('http://192.168.1.154:8082/bool-admin/wechat/wxtemplate/list_template?type=1')
+    fetch(`${baseUrl}/bool-admin/wechat/wxtemplate/list_template?type=1`, {
+      method: 'GET',
+      headers: {
+        token,
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         sendResponse(data)
@@ -31,7 +44,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   // 获取样式模板
   if (request.action === 'GETSTYLECOMMAND') {
-    fetch('http://192.168.1.154:8082/bool-admin/wechat/wxtemplate/list_template?type=2')
+    fetch(`${baseUrl}/bool-admin/wechat/wxtemplate/list_template?type=2`, {
+      method: 'GET',
+      headers: {
+        token,
+      },
+    })
       .then((response) => response.json())
       .then((data) => {
         sendResponse(data)
@@ -41,10 +59,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 
   if (request.action === 'GENARTICLE') {
-    fetch('http://192.168.1.154:8082/bool-admin/wechat/publicarticles/gen_article', {
+    fetch(`${baseUrl}/bool-admin/wechat/publicarticles/gen_article`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        token,
       },
       body: JSON.stringify(request.data),
     })
@@ -53,6 +72,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         sendResponse(data)
       })
       .catch((error) => console.error('Error:', error))
+    return true
+  }
+
+  if (request.action === 'SETBASEURL') {
+    baseUrl = request.data
+    return true
+  }
+
+  if (request.action === 'SETTOKEN') {
+    token = request.data
     return true
   }
 })

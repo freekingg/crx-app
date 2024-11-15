@@ -2,18 +2,23 @@
 import { onMounted, reactive, ref, defineAsyncComponent } from 'vue'
 const Index = defineAsyncComponent(() => import('./pages/Index.vue'))
 import { NMessageProvider, NIcon } from 'naive-ui'
-
+import { setItem, getItem } from './utils'
 const page = reactive({
   component: Index,
 })
 
 onMounted(() => {
-  let move = document.getElementById('zhedie')
-  move.addEventListener('click', () => {})
+  // 读取数据
+  getItem('kkhide').then((value) => {
+    if (value) {
+      hide.value = value
+    }
+  })
 })
 const hide = ref(false)
 const hideHandle = () => {
   hide.value = !hide.value
+  setItem('kkhide', hide.value)
 }
 </script>
 
@@ -115,11 +120,14 @@ const hideHandle = () => {
 .v-binder-follower-container {
   z-index: 99999 !important;
 }
-.index .n-form-item-feedback-wrapper {
+.n-form-item-feedback-wrapper {
   min-height: 10px;
 }
 .kk-index {
   padding: 10px 25px;
+}
+.n-form-item-feedback-wrapper {
+  min-height: 10px !important;
 }
 .kk-h3 {
   color: #42b983;

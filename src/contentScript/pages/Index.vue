@@ -14,10 +14,13 @@ import {
   NPopconfirm,
   NAlert,
 } from 'naive-ui'
-const { message, notification, dialog, loadingBar, modal } = createDiscreteApi(
-  ["message", "dialog", "notification", "loadingBar", "modal"],
-  
-);
+const { message, notification, dialog, loadingBar, modal } = createDiscreteApi([
+  'message',
+  'dialog',
+  'notification',
+  'loadingBar',
+  'modal',
+])
 import { setItem, getItem } from '../utils'
 import { allowHost } from '../data'
 
@@ -28,11 +31,11 @@ const rules = reactive({
     message: '请选择账号',
     trigger: ['input'],
   },
-  // query: {
-  //   required: true,
-  //   message: '请选择账号',
-  //   trigger: ['input'],
-  // },
+  baseUrl: {
+    required: true,
+    message: '请输入请示地址',
+    trigger: ['input'],
+  },
 })
 let messageReactive = null
 
@@ -45,6 +48,7 @@ const formValue = reactive({
   articleTempId: '',
   origUrl: '',
   origTitle: '',
+  baseUrl: 'http://47.96.231.20:81',
   imgList: [],
 })
 const accounts = ref([])
@@ -72,7 +76,7 @@ const getAccounts = () => {
         }
       })
       getItem('articleTempId').then((value) => {
-        console.log('value: ', value);
+        console.log('value: ', value)
         if (value) {
           formValue.articleTempId = value
         }
@@ -135,6 +139,15 @@ const contentHandle = () => {
     titleDom = document.querySelector('h1.Post-Title')
     imgsDom = document.querySelectorAll('.RichText img')
   }
+  function isUrl(str) {
+    try {
+        new URL(str);
+        return true;
+    } catch (err) {
+        return false;
+    }
+}
+
 
   if (target.title.indexOf('分析网址') !== -1) {
     formValue.query = location.href
@@ -142,7 +155,10 @@ const contentHandle = () => {
     formValue.query = titleDom.innerText
   }
   if (imgsDom.length) {
-    formValue.imgList = Array.from(imgsDom).map((item) => item.src)
+    let trueImg = Array.from(imgsDom).filter(item=>{
+      return isUrl(item.src) && item.width > 100
+    })
+    formValue.imgList = trueImg.map((item) => item.src)
   }
 
   if (!formValue.query) {
@@ -150,18 +166,15 @@ const contentHandle = () => {
   } else if (!formValue.imgList) {
     return message.error('图片不可为空')
   } else {
-
-
     loading.value = true
     messageReactive = message.loading('提交中', { duration: 0 })
 
-    
     formValue.origUrl = location.href
     formValue.origTitle = document.title
 
     chrome.runtime.sendMessage({ action: 'GENARTICLE', data: formValue }, function (response) {
       console.log('提交文章结果1:', response)
-      if(response.code == 500){
+      if (response.code == 500) {
         loading.value = false
         if (messageReactive) {
           messageReactive.destroy()
@@ -181,6 +194,28 @@ const contentHandle = () => {
       }, 5000)
     })
   }
+}
+
+const setBaseApi = (value) => {
+  chrome.runtime.sendMessage({ action: 'SETBASEURL', data: value }, function (response) {})
+}
+
+const setToken = (value) => {
+  console.log('setToken: ',value);
+  setItem('token', value).then(() => {
+    console.log('数据存储成功')
+  })
+  chrome.runtime.sendMessage({ action: 'SETTOKEN', data: value }, function (response) {})
+}
+
+const handleBlurApi = (e) => {
+  let value = e.target.value
+  // 存储数据
+  setItem('baseUrl', value).then(() => {
+    console.log('数据存储成功')
+  })
+
+  setBaseApi(value)
 }
 
 const handleUpdateValue = (value) => {
@@ -229,11 +264,31 @@ const matchHost = () => {
   }
 }
 
-onMounted(() => {
-  getAccounts()
-  getAiCommand()
-  getStyleCommand()
-  matchHost()
+onMounted( () => {
+  getItem('token').then((value) => {
+    console.log('value: ', value);
+  })
+  getItem('baseUrl').then(async (value) => {
+
+    let tokenObj  = sessionStorage.getItem('v1@CacheToken')
+    if(tokenObj){
+      let obj = JSON.parse(tokenObj)
+      setToken(obj.token)
+    }else{
+      let tokenData = await getItem('token')
+      setToken(tokenData)
+    }
+
+    if (value) {
+      formValue.baseUrl = value
+      setBaseApi(value)
+    }
+
+    getAccounts()
+    getAiCommand()
+    getStyleCommand()
+    matchHost()
+  })
 })
 </script>
 
@@ -251,6 +306,7 @@ onMounted(() => {
     >
       <n-form-item label="账号" path="accountId">
         <n-select
+          placeholder="账号"
           label-field="name"
           value-field="id"
           v-model:value="formValue.accountId"
@@ -261,6 +317,9 @@ onMounted(() => {
 
       <n-form-item label="内容" path="query">
         <n-input v-model:value="formValue.query" placeholder="内容" />
+      </n-form-item>
+      <n-form-item label="接口" path="baseUrl">
+        <n-input @blur="handleBlurApi" v-model:value="formValue.baseUrl" placeholder="接口地址" />
       </n-form-item>
       <n-form-item label="AI指令" path="age">
         <n-radio-group
@@ -307,6 +366,4 @@ onMounted(() => {
   </main>
 </template>
 
-<style>
-
-</style>
+<style></style>
