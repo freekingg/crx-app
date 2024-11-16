@@ -48,6 +48,7 @@ const formValue = reactive({
   articleTempId: '',
   origUrl: '',
   origTitle: '',
+  scrnshBtm: 0,
   baseUrl: 'http://47.96.231.20:81',
   imgList: [],
 })
@@ -57,6 +58,10 @@ const styleCommands = ref([])
 const loading = ref(false)
 const disabled = ref(false)
 const webType = ref()
+const scrnshs = ref([
+  { label: '不处理', value: 0 },
+  { label: '处理', value: 50 },
+])
 
 const getAccounts = () => {
   chrome.runtime.sendMessage({ action: 'GETACCOUNT' }, function (response) {
@@ -141,13 +146,12 @@ const contentHandle = () => {
   }
   function isUrl(str) {
     try {
-        new URL(str);
-        return true;
+      new URL(str)
+      return true
     } catch (err) {
-        return false;
+      return false
     }
-}
-
+  }
 
   if (target.title.indexOf('分析网址') !== -1) {
     formValue.query = location.href
@@ -155,7 +159,7 @@ const contentHandle = () => {
     formValue.query = titleDom.innerText
   }
   if (imgsDom.length) {
-    let trueImg = Array.from(imgsDom).filter(item=>{
+    let trueImg = Array.from(imgsDom).filter((item) => {
       return isUrl(item.src) && item.width > 100
     })
     formValue.imgList = trueImg.map((item) => item.src)
@@ -201,7 +205,7 @@ const setBaseApi = (value) => {
 }
 
 const setToken = (value) => {
-  console.log('setToken: ',value);
+  console.log('setToken: ', value)
   setItem('token', value).then(() => {
     console.log('数据存储成功')
   })
@@ -264,17 +268,16 @@ const matchHost = () => {
   }
 }
 
-onMounted( () => {
+onMounted(() => {
   getItem('token').then((value) => {
-    console.log('value: ', value);
+    console.log('value: ', value)
   })
   getItem('baseUrl').then(async (value) => {
-
-    let tokenObj  = sessionStorage.getItem('v1@CacheToken')
-    if(tokenObj){
+    let tokenObj = sessionStorage.getItem('v1@CacheToken')
+    if (tokenObj) {
       let obj = JSON.parse(tokenObj)
       setToken(obj.token)
-    }else{
+    } else {
       let tokenData = await getItem('token')
       setToken(tokenData)
     }
@@ -329,6 +332,13 @@ onMounted( () => {
         >
           <n-radio :value="item.id" v-for="(item, index) in aiCommands" :key="item.id">
             {{ item.title }}</n-radio
+          >
+        </n-radio-group>
+      </n-form-item>
+      <n-form-item label="图片水印" path="scrnshBtm">
+        <n-radio-group v-model:value="formValue.scrnshBtm" name="scrnshBtm">
+          <n-radio :value="item.value" v-for="(item, index) in scrnshs" :key="item.value">
+            {{ item.label }}</n-radio
           >
         </n-radio-group>
       </n-form-item>
